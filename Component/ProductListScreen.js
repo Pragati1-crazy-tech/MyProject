@@ -12,21 +12,23 @@ import {
 const ProductListScreen = ({ navigation }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true); // loading state
-
+ 
   const fetchProducts = async () => {
     try {
       setLoading(true);
       const res = await fetch('https://fakestoreapi.com/products');
+  
       const data = await res.json();
+      console.log(data);
       setProducts(data);
     } catch (error) {
+      setError(error.message);
       console.log('Error fetching products:', error);
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
+   useEffect(() => {
     fetchProducts();
   }, []);
 
@@ -41,22 +43,27 @@ const ProductListScreen = ({ navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {products.map(product => (
-        <TouchableOpacity
-          key={product.id}
-          style={styles.card}
-          onPress={() => navigation.navigate('ProductDetail', { product })}
-        >
-          <Image
-            source={{ uri: product.image }}
-            style={styles.image}
-            resizeMode="contain"
-          />
-          <Text style={styles.title}>{product.title}</Text>
-          <Text style={styles.price}>${product.price}</Text>
-          <Text style={styles.rating}>Rating: {product.rating.rate}</Text>
-        </TouchableOpacity>
-      ))}
+      {products.length > 0 ? (
+        products.map(product => (
+          <TouchableOpacity
+            key={product.id}
+            style={styles.card}
+            onPress={() => navigation.navigate('ProductDetail', { product })}
+          >
+            <Image
+              source={{ uri: product.image }}
+              style={styles.image}
+              resizeMode="contain"
+            />
+            <Text style={styles.title}>{product.title}</Text>
+            <Text style={styles.price}>${product.price}</Text>
+            <Text style={styles.rating}>Rating: {product.rating.rate}</Text>
+            
+          </TouchableOpacity>
+        ))
+      ) : (
+        <Text>No products available</Text>
+      )}
     </ScrollView>
   );
 };
@@ -81,11 +88,16 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     width: 320,
     alignItems: 'center',
-    elevation: 4, 
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+  },
+  image: {
+    width: 150,
+    height: 150,
+    marginBottom: 10,
   },
   image: {
     width: 150,
@@ -98,7 +110,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#222',
     marginBottom: 10,
-    fontFamily: 'Poppins-Regular',
   },
   price: {
     fontSize: 15,
